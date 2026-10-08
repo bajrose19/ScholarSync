@@ -1,0 +1,37 @@
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      {% include "partials/brand.html" %}
+      <span>ScholarSync</span>
+    </a>
+    <input class="nav-toggle" id="nav-toggle" type="checkbox">
+    <label class="nav-burger" for="nav-toggle">Menu</label>
+    <nav class="nav">
+      {% if current_user.role == 'student' %}
+        <a class="{% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a class="{% if request.path == '/dashboard/explore' %}active{% endif %}" href="{{ url_for('explore') }}">Explore</a>
+        <a class="{% if request.path == '/dashboard/saved' %}active{% endif %}" href="{{ url_for('saved') }}">Saved</a>
+        <a class="{% if request.path == '/dashboard/applications' %}active{% endif %}" href="{{ url_for('applications') }}">Applications</a>
+      {% else %}
+        <a class="{% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a class="{% if request.path == '/dashboard/opportunities' %}active{% endif %}" href="{{ url_for('opportunities') }}">My Opportunities</a>
+        <a class="{% if request.path == '/dashboard/applications' %}active{% endif %}" href="{{ url_for('applications') }}">Applications</a>
+        <a class="btn btn-primary nav-post" href="{{ url_for('new_opportunity') }}">Post Opportunity</a>
+      {% endif %}
+    </nav>
+    <details class="account">
+      <summary>
+        <span class="avatar">{{ current_user.full_name|initials }}</span>
+      </summary>
+      <div class="account-menu">
+        <p>{{ current_user.full_name }}</p>
+        <p class="muted">{{ current_user.email }}</p>
+        <a href="{{ url_for('profile_view') }}">Profile</a>
+        <form method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit">Sign out</button>
+        </form>
+      </div>
+    </details>
+  </div>
+</header>

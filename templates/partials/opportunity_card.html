@@ -1,0 +1,28 @@
+<article class="card opportunity-card">
+  <div class="card-top">
+    <h3><a href="{{ url_for('opportunity_detail', opportunity_id=opportunity.id) }}">{{ opportunity.title }}</a></h3>
+    {% if opportunity.match_score is not none %}
+      <span class="match">{{ opportunity.match_score|percent }} match</span>
+    {% endif %}
+  </div>
+  <p class="muted">
+    {{ opportunity.professor.full_name }}
+    {% if opportunity.professor.university %} · {{ opportunity.professor.university }}{% endif %}
+  </p>
+  <p class="clamp">{{ opportunity.description }}</p>
+  <div class="pills">
+    {% for skill in opportunity.skills_needed[:4] %}
+      <span class="pill {% if skill in opportunity.matched_skills %}pill-solid{% endif %}">{{ skill }}</span>
+    {% endfor %}
+  </div>
+  <div class="card-actions">
+    <a class="btn btn-outline" href="{{ url_for('opportunity_detail', opportunity_id=opportunity.id) }}">View</a>
+    {% if current_user.role == 'student' %}
+      <form method="post" action="{{ url_for('toggle_save', opportunity_id=opportunity.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="next" value="{{ request.full_path if request.query_string else request.path }}">
+        <button class="btn btn-ghost" type="submit">{{ 'Unsave' if opportunity.id in saved_ids else 'Save' }}</button>
+      </form>
+    {% endif %}
+  </div>
+</article>

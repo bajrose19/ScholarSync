@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Saved · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page">
+  {% include "partials/flashes.html" %}
+  <h1>Saved opportunities</h1>
+  {% if opportunities %}
+    <div class="grid two">
+      {% for opportunity in opportunities %}
+        {% include "partials/opportunity_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="card">
+      <p>You have not saved any listings yet.</p>
+      <a class="btn btn-primary" href="{{ url_for('explore') }}">Explore opportunities</a>
+    </section>
+  {% endif %}
+</main>
+{% endblock %}

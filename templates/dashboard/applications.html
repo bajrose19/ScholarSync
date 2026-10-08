@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Applications · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page">
+  {% include "partials/flashes.html" %}
+  <h1>Applications</h1>
+  {% if current_user.role == 'student' %}
+    <p class="muted">Track the status of your research applications.</p>
+    {% if applications %}
+      <div class="stack">
+        {% for application in applications %}
+          <article class="card">
+            <div class="section-head">
+              <h2><a href="{{ url_for('opportunity_detail', opportunity_id=application.opportunity_id) }}">{{ application.opportunity.title }}</a></h2>
+              <span class="status status-{{ application.status }}">{{ application.status }}</span>
+            </div>
+            {% if application.cover_letter %}<p>{{ application.cover_letter }}</p>{% endif %}
+            <p class="muted">Submitted {{ application.created_at|shortdate }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <section class="card">
+        <p>You have not applied yet.</p>
+        <a class="btn btn-primary" href="{{ url_for('explore') }}">Find an opportunity</a>
+      </section>
+    {% endif %}
+  {% else %}
+    <p class="muted">Review and update applications to your research opportunities.</p>
+    <form class="card filters" method="get">
+      <label>Status
+        <select name="status">
+          {% for item in ['all', 'pending', 'reviewed', 'accepted', 'rejected'] %}
+            <option value="{{ item }}" {% if status == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Opportunity
+        <select name="opportunity">
+          <option value="all">All opportunities</option>
+          {% for opportunity in opportunities %}
+            <option value="{{ opportunity.id }}" {% if opportunity_filter == opportunity.id %}selected{% endif %}>{{ opportunity.title }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="btn btn-primary" type="submit">Filter</button>
+    </form>
+    <div class="layout">
+      <div class="stack">
+        {% for application in applications %}
+          <article class="card">
+            <div class="section-head">
+              <h2>{{ application.student.full_name }}</h2>
+              <span class="status status-{{ application.status }}">{{ application.status }}</span>
+            </div>
+            <p class="muted">{{ application.opportunity.title }} · {{ application.student.email }}</p>
+            {% if application.student.major %}<p>Major: {{ application.student.major }}</p>{% endif %}
+            {% if application.cover_letter %}<p>{{ application.cover_letter }}</p>{% endif %}
+            <div class="pills">
+              {% for skill in application.student.skills %}<span class="pill">{{ skill }}</span>{% endfor %}
+            </div>
+            <form method="post" action="{{ url_for('update_application', application_id=application.id) }}" class="row">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <input type="hidden" name="next" value="{{ url_for('applications', status=status, opportunity=opportunity_filter) }}">
+              {% for item in ['pending', 'reviewed', 'accepted', 'rejected'] %}
+                <button class="btn {% if application.status == item %}btn-primary{% else %}btn-outline{% endif %}" name="status" value="{{ item }}" type="submit">{{ item }}</button>
+              {% endfor %}
+            </form>
+          </article>
+        {% else %}
+          <p class="card muted">No applications match this filter.</p>
+        {% endfor %}
+      </div>
+      {% if selected %}
+        <aside class="card">
+          <h2>{{ selected.student.full_name }}</h2>
+          <p class="muted">{{ selected.student.email }}</p>
+          {% if selected.student.bio %}<p>{{ selected.student.bio }}</p>{% endif %}
+          <p>{{ selected.opportunity.title }}</p>
+        </aside>
+      {% endif %}
+    </div>
+  {% endif %}
+</main>
+{% endblock %}
