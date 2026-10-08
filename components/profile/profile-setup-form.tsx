@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { saveProfile } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,7 +13,6 @@ import { Badge } from '@/components/ui/badge'
 import { GraduationCap, Loader2, AlertCircle, X, Plus, ArrowRight, ArrowLeft } from 'lucide-react'
 
 interface ProfileSetupFormProps {
-  userId: string
   email: string
   initialRole: 'student' | 'professor'
   initialFullName: string
@@ -37,13 +35,11 @@ const RESEARCH_AREAS = [
 ]
 
 export function ProfileSetupForm({ 
-  userId, 
   email, 
   initialRole, 
   initialFullName, 
   initialUniversity 
 }: ProfileSetupFormProps) {
-  const router = useRouter()
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -110,59 +106,31 @@ export function ProfileSetupForm({
     setIsLoading(true)
     setError(null)
 
-    const supabase = createClient()
+    const result = await saveProfile({
+      fullName,
+      university,
+      department,
+      bio,
+      major,
+      graduationYear,
+      gpa,
+      skills,
+      interests,
+      linkedinUrl,
+      githubUrl,
+      title,
+      labName,
+      researchAreas,
+      websiteUrl,
+    })
 
-    try {
-      // Update main profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          full_name: fullName,
-          university,
-          department,
-          bio,
-        })
-        .eq('id', userId)
-
-      if (profileError) throw profileError
-
-      if (isStudent) {
-        // Update student profile
-        const { error: studentError } = await supabase
-          .from('student_profiles')
-          .update({
-            major,
-            graduation_year: graduationYear ? parseInt(graduationYear) : null,
-            gpa: gpa ? parseFloat(gpa) : null,
-            skills,
-            interests,
-            linkedin_url: linkedinUrl || null,
-            github_url: githubUrl || null,
-          })
-          .eq('user_id', userId)
-
-        if (studentError) throw studentError
-      } else {
-        // Update professor profile
-        const { error: professorError } = await supabase
-          .from('professor_profiles')
-          .update({
-            title,
-            lab_name: labName || null,
-            research_areas: researchAreas,
-            website_url: websiteUrl || null,
-          })
-          .eq('user_id', userId)
-
-        if (professorError) throw professorError
-      }
-
-      router.push('/dashboard')
-      router.refresh()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+    if (result.error) {
+      setError(result.error)
       setIsLoading(false)
+      return
     }
+
+    window.location.href = '/dashboard'
   }
 
   const canProceed = () => {

@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { logout } from '@/app/auth/login/actions'
+import { usePathname } from 'next/navigation'
+import { logout } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -36,7 +36,6 @@ interface DashboardNavProps {
 
 export function DashboardNav({ profile, studentProfile, professorProfile }: DashboardNavProps) {
   const pathname = usePathname()
-  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   
@@ -50,7 +49,7 @@ export function DashboardNav({ profile, studentProfile, professorProfile }: Dash
   const handleSignOut = () => {
     startTransition(async () => {
       await logout()
-      router.push('/')
+      window.location.href = '/'
     })
   }
 

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { createOpportunity } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,7 +21,7 @@ import {
 import { ArrowLeft, Loader2, AlertCircle, X, Plus } from 'lucide-react'
 
 interface NewOpportunityFormProps {
-  professorId: string
+  professorId?: string
 }
 
 const RESEARCH_AREAS = [
@@ -35,7 +35,7 @@ const SUGGESTED_SKILLS = [
   'C++', 'Java', 'Research Methods', 'Literature Review'
 ]
 
-export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
+export function NewOpportunityForm(_props: NewOpportunityFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -88,33 +88,25 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
       return
     }
 
-    const supabase = createClient()
+    const result = await createOpportunity({
+      title,
+      description,
+      requirements,
+      skills,
+      researchAreas,
+      duration,
+      compensation,
+      positions,
+      deadline,
+    })
 
-    const { data, error: insertError } = await supabase
-      .from('opportunities')
-      .insert({
-        professor_id: professorId,
-        title: title.trim(),
-        description: description.trim(),
-        requirements: requirements.trim() || null,
-        skills_needed: skills,
-        research_areas: researchAreas,
-        duration: duration || null,
-        compensation: compensation || null,
-        positions_available: parseInt(positions) || 1,
-        application_deadline: deadline || null,
-        status: 'open',
-      })
-      .select()
-      .single()
-
-    if (insertError) {
-      setError(insertError.message)
+    if (result.error || !result.id) {
+      setError(result.error || 'Could not create opportunity')
       setIsSubmitting(false)
       return
     }
 
-    router.push(`/dashboard/opportunities/${data.id}`)
+    router.push(`/dashboard/opportunities/${result.id}`)
     router.refresh()
   }
 

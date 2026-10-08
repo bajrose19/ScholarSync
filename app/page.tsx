@@ -1,14 +1,13 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { getViewer } from '@/lib/data'
 import { 
   GraduationCap, 
   Sparkles, 
   Users, 
-  Search, 
   FileText,
   ArrowRight,
   CheckCircle,
@@ -17,17 +16,13 @@ import {
 } from 'lucide-react'
 
 export default async function LandingPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  // If user is logged in, redirect to dashboard
-  if (user) {
+  const profile = await getViewer()
+  if (profile) {
     redirect('/dashboard')
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
@@ -49,20 +44,19 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="py-20 md:py-32">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6 px-4 py-1.5">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
-              AI-Powered Research Matching
+              Research Matching
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
               Connect with Research Opportunities That{' '}
               <span className="text-primary">Match Your Potential</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty">
-              ScholarSync uses AI to match students with research opportunities based on skills, 
+              ScholarSync matches students with research opportunities based on skills, 
               interests, and academic goals. Find your perfect research fit.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -82,7 +76,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -102,7 +95,7 @@ export default async function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Create Your Profile</h3>
                 <p className="text-muted-foreground">
-                  Add your skills, interests, and academic background to help our AI understand 
+                  Add your skills, interests, and academic background so matches reflect
                   what opportunities suit you best.
                 </p>
               </CardContent>
@@ -113,10 +106,10 @@ export default async function LandingPage() {
                 <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                   <Sparkles className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Get AI Matches</h3>
+                <h3 className="text-xl font-semibold mb-3">Get Matches</h3>
                 <p className="text-muted-foreground">
-                  Our intelligent algorithm analyzes your profile and matches you with 
-                  research opportunities that align with your goals.
+                  Overlapping skills and research interests surface the opportunities
+                  that align with your goals.
                 </p>
               </CardContent>
             </Card>
@@ -128,8 +121,8 @@ export default async function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Apply with Ease</h3>
                 <p className="text-muted-foreground">
-                  Apply to opportunities with one click. Track your applications and 
-                  communicate with professors seamlessly.
+                  Apply to opportunities with one click. Track your applications and
+                  review them with professors from one dashboard.
                 </p>
               </CardContent>
             </Card>
@@ -137,11 +130,9 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* For Students & Professors */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            {/* Students */}
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -151,11 +142,11 @@ export default async function LandingPage() {
               </div>
               <ul className="space-y-4">
                 {[
-                  'AI-powered opportunity matching based on your skills',
-                  'Explore research positions across multiple universities',
+                  'Opportunity matching based on your skills',
+                  'Explore research positions from professors on this app',
                   'Track all your applications in one place',
                   'Build your research profile and showcase experience',
-                  'Get notified when new matching opportunities are posted',
+                  'Save listings and come back to them later',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -171,7 +162,6 @@ export default async function LandingPage() {
               </Button>
             </div>
 
-            {/* Professors */}
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
@@ -181,8 +171,8 @@ export default async function LandingPage() {
               </div>
               <ul className="space-y-4">
                 {[
-                  'Post research opportunities and reach qualified students',
-                  'AI matching helps find students with the right skills',
+                  'Post research opportunities and reach students',
+                  'Skill overlap helps find students with the right background',
                   'Review applications and student profiles efficiently',
                   'Manage multiple positions from one dashboard',
                   'Build your lab team with talented researchers',
@@ -204,7 +194,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 bg-primary/5">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -212,8 +201,8 @@ export default async function LandingPage() {
               Ready to Find Your Research Match?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Join thousands of students and professors using ScholarSync to 
-              connect and collaborate on groundbreaking research.
+              Create an account on this machine and start connecting students
+              and professors around research.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="text-base">
@@ -232,7 +221,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-border py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -243,19 +231,8 @@ export default async function LandingPage() {
               <span className="font-semibold">ScholarSync</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              2024 ScholarSync. Connecting students with research opportunities.
+              ScholarSync stores accounts and listings locally on this computer.
             </p>
-            <div className="flex gap-6 text-sm text-muted-foreground">
-              <Link href="/terms" className="hover:text-foreground transition-colors">
-                Terms
-              </Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors">
-                Privacy
-              </Link>
-              <Link href="/contact" className="hover:text-foreground transition-colors">
-                Contact
-              </Link>
-            </div>
           </div>
         </div>
       </footer>

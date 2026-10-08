@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { GraduationCap, Loader2, AlertCircle } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { signIn } from '@/lib/actions'
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
@@ -23,14 +23,10 @@ export default function LoginPage() {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const result = await signIn(email, password)
 
-    if (error) {
-      setError(error.message)
+    if (result.error) {
+      setError(result.error)
       setIsLoading(false)
       return
     }
@@ -114,6 +110,10 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Demo professor: maya.chen@university.edu / demo1234
+            </p>
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">

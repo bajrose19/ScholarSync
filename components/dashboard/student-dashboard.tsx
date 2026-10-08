@@ -14,6 +14,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import type { Profile, StudentProfile, Opportunity, Application } from '@/lib/types'
+import { givenName } from '@/lib/utils'
 
 interface StudentDashboardProps {
   profile: Profile
@@ -30,7 +31,7 @@ export function StudentDashboard({
   savedIds,
   applications 
 }: StudentDashboardProps) {
-  const firstName = profile.full_name?.split(' ')[0] || 'there'
+  const firstName = givenName(profile.full_name, 'there')
   
   // Simple matching: score based on skill/interest overlap
   const scoredOpportunities = opportunities.map(opp => {

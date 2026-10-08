@@ -15,7 +15,7 @@ import {
   Building2,
   Sparkles
 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { toggleSavedOpportunity } from '@/lib/actions'
 import { useState } from 'react'
 import type { Opportunity, Profile } from '@/lib/types'
 
@@ -55,23 +55,9 @@ export function OpportunityCard({
     if (isToggling) return
     setIsToggling(true)
 
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) return
-
-    if (saved) {
-      await supabase
-        .from('saved_opportunities')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('opportunity_id', opportunity.id)
-      setSaved(false)
-    } else {
-      await supabase
-        .from('saved_opportunities')
-        .insert({ user_id: user.id, opportunity_id: opportunity.id })
-      setSaved(true)
+    const result = await toggleSavedOpportunity(opportunity.id)
+    if (!result.error && typeof result.saved === 'boolean') {
+      setSaved(result.saved)
     }
 
     setIsToggling(false)

@@ -16,6 +16,7 @@ import {
   XCircle
 } from 'lucide-react'
 import type { Profile, ProfessorProfile, Opportunity, Application } from '@/lib/types'
+import { givenName } from '@/lib/utils'
 
 interface ProfessorDashboardProps {
   profile: Profile
@@ -30,7 +31,7 @@ export function ProfessorDashboard({
   opportunities, 
   applications 
 }: ProfessorDashboardProps) {
-  const firstName = profile.full_name?.split(' ')[0] || 'Professor'
+  const firstName = givenName(profile.full_name, 'Professor')
   
   const openOpportunities = opportunities.filter(o => o.status === 'open')
   const pendingApplications = applications.filter(a => a.status === 'pending')

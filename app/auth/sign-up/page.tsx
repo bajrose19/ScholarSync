@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { signUp } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,7 +13,6 @@ import { GraduationCap, Loader2, AlertCircle, User, BookOpen } from 'lucide-reac
 import type { UserRole } from '@/lib/types'
 
 export default function SignUpPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -41,30 +39,21 @@ export default function SignUpPage() {
       return
     }
 
-    const supabase = createClient()
-
-    const { error: signUpError } = await supabase.auth.signUp({
+    const result = await signUp({
       email,
       password,
-      options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
-          `${window.location.origin}/auth/callback`,
-        data: {
-          full_name: fullName,
-          role: role,
-          university: university,
-        },
-      },
+      fullName,
+      role,
+      university,
     })
 
-    if (signUpError) {
-      setError(signUpError.message)
+    if (result.error) {
+      setError(result.error)
       setIsLoading(false)
       return
     }
 
-    router.push('/auth/sign-up-success')
+    window.location.href = '/profile/setup'
   }
 
   return (

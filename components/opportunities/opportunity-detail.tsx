@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { applyToOpportunity, toggleSavedOpportunity } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -36,14 +35,13 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  Edit,
-  Trash2
+  Edit
 } from 'lucide-react'
-import type { Profile, StudentProfile, Opportunity, Application } from '@/lib/types'
+import type { Profile, StudentProfile, Opportunity, Application, ProfessorProfile } from '@/lib/types'
 
 interface OpportunityDetailProps {
   opportunity: Opportunity & { 
-    professor?: Profile & { professor_profiles?: { research_areas: string[], lab_name: string | null, website_url: string | null } } 
+    professor?: Profile & { professor_profiles?: ProfessorProfile | null } 
   }
   profile: Profile | null
   studentProfile: StudentProfile | null
@@ -62,7 +60,6 @@ export function OpportunityDetail({
   isOwner,
   applications
 }: OpportunityDetailProps) {
-  const router = useRouter()
   const [saved, setSaved] = useState(initialSaved)
   const [isToggling, setIsToggling] = useState(false)
   const [showApplyDialog, setShowApplyDialog] = useState(false)
@@ -104,23 +101,9 @@ export function OpportunityDetail({
     if (isToggling) return
     setIsToggling(true)
 
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) return
-
-    if (saved) {
-      await supabase
-        .from('saved_opportunities')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('opportunity_id', opportunity.id)
-      setSaved(false)
-    } else {
-      await supabase
-        .from('saved_opportunities')
-        .insert({ user_id: user.id, opportunity_id: opportunity.id })
-      setSaved(true)
+    const result = await toggleSavedOpportunity(opportunity.id)
+    if (!result.error && typeof result.saved === 'boolean') {
+      setSaved(result.saved)
     }
 
     setIsToggling(false)
@@ -130,25 +113,10 @@ export function OpportunityDetail({
     setIsSubmitting(true)
     setError(null)
 
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      setError('You must be logged in to apply')
-      setIsSubmitting(false)
-      return
-    }
+    const result = await applyToOpportunity(opportunity.id, coverLetter)
 
-    const { error: insertError } = await supabase
-      .from('applications')
-      .insert({
-        opportunity_id: opportunity.id,
-        student_id: user.id,
-        cover_letter: coverLetter || null,
-      })
-
-    if (insertError) {
-      setError(insertError.message)
+    if (result.error) {
+      setError(result.error)
       setIsSubmitting(false)
       return
     }

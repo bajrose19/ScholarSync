@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { updateApplicationStatus } from '@/lib/actions'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -57,12 +57,7 @@ export function ProfessorApplications({ applications, opportunities }: Professor
 
   const updateStatus = async (applicationId: string, newStatus: string) => {
     setIsUpdating(true)
-    const supabase = createClient()
-    
-    await supabase
-      .from('applications')
-      .update({ status: newStatus })
-      .eq('id', applicationId)
+    await updateApplicationStatus(applicationId, newStatus as Application['status'])
 
     router.refresh()
     setIsUpdating(false)

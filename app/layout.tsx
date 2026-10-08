@@ -1,14 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
-
-const inter = Inter({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: 'ScholarSync - Research Opportunity Matching',
-  description: 'AI-powered platform connecting students with research opportunities. Find your perfect research match with professors and labs.',
+  description: 'Platform connecting students with research opportunities. Find your perfect research match with professors and labs.',
   generator: 'v0.app',
   keywords: ['research', 'students', 'professors', 'opportunities', 'AI matching', 'academia', 'university'],
   authors: [{ name: 'ScholarSync' }],
@@ -49,7 +44,6 @@ export default function RootLayout({
     <html lang="en" className="bg-background">
       <body className="font-sans antialiased">
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )
