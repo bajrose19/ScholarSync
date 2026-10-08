@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Reset password · ScholarSync{% endblock %}
+{% block body %}
+<main class="auth-screen">
+  <div class="auth-card">
+    <a class="brand" href="{{ url_for('home') }}">
+      {% include "partials/brand.html" %}
+      <span>ScholarSync</span>
+    </a>
+    <section class="card">
+      <h1>Reset password</h1>
+      <p class="muted">Set a new password for an account on this computer. No email is sent.</p>
+      {% include "partials/flashes.html" %}
+      <form method="post" class="stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Email
+          <input type="email" name="email" required>
+        </label>
+        <label>New password
+          <input type="password" name="password" minlength="6" required>
+        </label>
+        <label>Confirm password
+          <input type="password" name="confirm_password" minlength="6" required>
+        </label>
+        <button class="btn btn-primary" type="submit">Update password</button>
+      </form>
+      <p class="muted"><a href="{{ url_for('login') }}">Back to sign in</a></p>
+    </section>
+  </div>
+</main>
+{% endblock %}

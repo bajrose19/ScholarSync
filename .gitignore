@@ -16,3 +16,7 @@ node_modules
 .data/
 *.tsbuildinfo
 .DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/

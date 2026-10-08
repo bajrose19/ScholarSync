@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page">
+  {% include "partials/flashes.html" %}
+  <h1>Welcome back, {{ current_user.full_name|given_name('there') }}</h1>
+  <p class="muted">Here is what is happening with your research search.</p>
+  <div class="stats">
+    <article class="card stat"><strong>{{ top_match_count }}</strong><span>Top matches</span></article>
+    <article class="card stat"><strong>{{ saved_ids|length }}</strong><span>Saved</span></article>
+    <article class="card stat"><strong>{{ pending_count }}</strong><span>Pending</span></article>
+    <article class="card stat"><strong>{{ available_count }}</strong><span>Available</span></article>
+  </div>
+  <div class="layout">
+    <div class="stack">
+      <section>
+        <div class="section-head">
+          <h2>Recommended for you</h2>
+          <a href="{{ url_for('explore') }}">View all</a>
+        </div>
+        {% if recommended %}
+          <div class="grid two">
+            {% for opportunity in recommended %}
+              {% include "partials/opportunity_card.html" %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="card muted">No opportunities are open yet.</p>
+        {% endif %}
+      </section>
+      <section class="card">
+        <div class="section-head">
+          <h2>Recently posted</h2>
+          <a href="{{ url_for('explore') }}">Explore</a>
+        </div>
+        {% for opportunity in recent %}
+          <a class="list-row" href="{{ url_for('opportunity_detail', opportunity_id=opportunity.id) }}">
+            <span>
+              <strong>{{ opportunity.title }}</strong>
+              <span class="muted">{{ opportunity.professor.full_name }}{% if opportunity.professor.university %} · {{ opportunity.professor.university }}{% endif %}</span>
+            </span>
+            <span class="pill">{{ opportunity.created_at|shortdate }}</span>
+          </a>
+        {% else %}
+          <p class="muted">No recent opportunities.</p>
+        {% endfor %}
+      </section>
+    </div>
+    <aside class="stack">
+      <section class="card">
+        <h2>Quick actions</h2>
+        <a class="btn btn-outline wide" href="{{ url_for('explore') }}">Explore opportunities</a>
+        <a class="btn btn-outline wide" href="{{ url_for('saved') }}">View saved ({{ saved_ids|length }})</a>
+        <a class="btn btn-outline wide" href="{{ url_for('profile_view') }}">Update profile</a>
+      </section>
+      <section class="card">
+        <div class="section-head">
+          <h2>Your applications</h2>
+          <a href="{{ url_for('applications') }}">View all</a>
+        </div>
+        {% for application in applications[:3] %}
+          <div class="list-row static">
+            <strong>{{ application.opportunity.title }}</strong>
+            <span class="status status-{{ application.status }}">{{ application.status }}</span>
+          </div>
+        {% else %}
+          <p class="muted">You have not applied to any opportunities yet.</p>
+        {% endfor %}
+      </section>
+      {% if current_user.skills %}
+        <section class="card">
+          <h2>Your skills</h2>
+          <div class="pills">
+            {% for skill in current_user.skills[:8] %}<span class="pill">{{ skill }}</span>{% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    </aside>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}My opportunities · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page">
+  <div class="page-head">
+    <div>
+      <h1>My opportunities</h1>
+      <p class="muted">Research positions you have posted.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('new_opportunity') }}">Post opportunity</a>
+  </div>
+  <div class="stack">
+    {% for opportunity in opportunities %}
+      <a class="card list-row" href="{{ url_for('opportunity_detail', opportunity_id=opportunity.id) }}">
+        <span>
+          <strong>{{ opportunity.title }}</strong>
+          <span class="muted">{{ opportunity.application_count }} application{{ '' if opportunity.application_count == 1 else 's' }} · {{ opportunity.positions_available }} position{{ '' if opportunity.positions_available == 1 else 's' }}</span>
+        </span>
+        <span class="status status-{{ opportunity.status }}">{{ opportunity.status }}</span>
+      </a>
+    {% else %}
+      <section class="card">
+        <p>No opportunities posted yet.</p>
+        <a class="btn btn-primary" href="{{ url_for('new_opportunity') }}">Post your first opportunity</a>
+      </section>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}

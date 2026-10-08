@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}ScholarSync{% endblock %}
+{% block body %}
+<main class="auth-screen">
+  <section class="card auth-card">
+    <h1>Something went wrong</h1>
+    <p>{{ message }}</p>
+    <a class="btn btn-primary" href="{{ url_for('home') }}">Back to ScholarSync</a>
+  </section>
+</main>
+{% endblock %}

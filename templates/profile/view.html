@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Profile · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page narrow">
+  {% include "partials/flashes.html" %}
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">{{ current_user.role }}</p>
+      <h1>{{ current_user.full_name }}</h1>
+      <p class="muted">{{ current_user.email }}{% if current_user.university %} · {{ current_user.university }}{% endif %}{% if current_user.department %} · {{ current_user.department }}{% endif %}</p>
+    </div>
+    <a class="btn btn-outline" href="{{ url_for('profile_edit') }}">Edit profile</a>
+  </div>
+  {% if current_user.bio %}
+    <section class="card"><h2>About</h2><p>{{ current_user.bio }}</p></section>
+  {% endif %}
+  {% if current_user.role == 'student' %}
+    <section class="card">
+      <h2>Academics</h2>
+      <p>{{ current_user.major or 'Major not set' }}{% if current_user.graduation_year %} · Class of {{ current_user.graduation_year }}{% endif %}{% if current_user.gpa %} · GPA {{ current_user.gpa }}{% endif %}</p>
+      <h3>Skills</h3>
+      <div class="pills">{% for skill in current_user.skills %}<span class="pill pill-solid">{{ skill }}</span>{% else %}<span class="muted">None yet</span>{% endfor %}</div>
+      <h3>Interests</h3>
+      <div class="pills">{% for interest in current_user.interests %}<span class="pill">{{ interest }}</span>{% else %}<span class="muted">None yet</span>{% endfor %}</div>
+      {% if current_user.linkedin_url or current_user.github_url %}
+        <p>
+          {% if current_user.linkedin_url %}<a href="{{ current_user.linkedin_url }}">LinkedIn</a>{% endif %}
+          {% if current_user.github_url %}<a href="{{ current_user.github_url }}">GitHub</a>{% endif %}
+        </p>
+      {% endif %}
+    </section>
+  {% else %}
+    <section class="card">
+      <h2>{{ current_user.title or 'Professor' }}{% if current_user.lab_name %} · {{ current_user.lab_name }}{% endif %}</h2>
+      <div class="pills">{% for area in current_user.research_areas %}<span class="pill pill-solid">{{ area }}</span>{% endfor %}</div>
+      {% if current_user.website_url %}<p><a href="{{ current_user.website_url }}">Lab website</a></p>{% endif %}
+    </section>
+  {% endif %}
+</main>
+{% endblock %}

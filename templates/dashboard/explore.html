@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Explore · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page">
+  <h1>Explore opportunities</h1>
+  <p class="muted">Filter open listings and sort by how well they match your profile.</p>
+  <form class="card filters" method="get">
+    <label>Search
+      <input name="q" value="{{ query }}" placeholder="Title, skill, professor, or university">
+    </label>
+    <label>Research area
+      <select name="area">
+        <option value="all">All areas</option>
+        {% for item in research_areas %}
+          <option value="{{ item }}" {% if area == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Sort
+      <select name="sort">
+        <option value="match" {% if sort == 'match' %}selected{% endif %}>Best match</option>
+        <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Newest</option>
+        <option value="deadline" {% if sort == 'deadline' %}selected{% endif %}>Deadline</option>
+      </select>
+    </label>
+    {% if skill_options %}
+      <fieldset>
+        <legend>Skills</legend>
+        <div class="pills">
+          {% for skill in skill_options %}
+            <label class="pill"><input type="checkbox" name="skill" value="{{ skill }}" {% if skill in selected_skills %}checked{% endif %}> {{ skill }}</label>
+          {% endfor %}
+        </div>
+      </fieldset>
+    {% endif %}
+    <button class="btn btn-primary" type="submit">Apply filters</button>
+  </form>
+  <p class="muted">{{ opportunities|length }} open listing{{ '' if opportunities|length == 1 else 's' }}</p>
+  <div class="grid two">
+    {% for opportunity in opportunities %}
+      {% include "partials/opportunity_card.html" %}
+    {% else %}
+      <p class="card">No opportunities match those filters.</p>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}
