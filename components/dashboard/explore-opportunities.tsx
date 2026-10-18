@@ -13,30 +13,41 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { OpportunityCard } from './opportunity-card'
-import { Search, Filter, X, Sparkles, Clock, Building2 } from 'lucide-react'
+import { Search, Filter, X, Sparkles, Clock } from 'lucide-react'
 import type { Opportunity, Profile, StudentProfile } from '@/lib/types'
+import { scoreMatch } from '@/lib/match'
+import {
+  FIELD_TRACK_LABELS,
+  RESEARCH_AREAS,
+  WORK_MODE_LABELS,
+  type FieldTrack,
+} from '@/lib/catalog'
 
 interface ExploreOpportunitiesProps {
   opportunities: (Opportunity & { professor?: Profile })[]
   savedIds: string[]
   studentProfile: StudentProfile | null
+  studentCountry?: string | null
 }
-
-const RESEARCH_AREAS = [
-  'Computer Science', 'Biology', 'Chemistry', 'Physics', 'Mathematics',
-  'Engineering', 'Medicine', 'Psychology', 'Economics', 'Environmental Science'
-]
 
 export function ExploreOpportunities({ 
   opportunities, 
   savedIds, 
-  studentProfile 
+  studentProfile,
+  studentCountry,
 }: ExploreOpportunitiesProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedArea, setSelectedArea] = useState<string>('all')
+  const [selectedField, setSelectedField] = useState<string>('all')
+  const [selectedMode, setSelectedMode] = useState<string>('all')
+  const [selectedCountry, setSelectedCountry] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'match' | 'recent' | 'deadline'>('match')
   const [showFilters, setShowFilters] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+
+  const countries = useMemo(() => {
+    return Array.from(new Set(opportunities.map(opp => opp.country).filter(Boolean) as string[])).sort()
+  }, [opportunities])
 
   // Get all unique skills from opportunities
   const allSkills = useMemo(() => {
@@ -49,26 +60,10 @@ export function ExploreOpportunities({
 
   // Score and filter opportunities
   const processedOpportunities = useMemo(() => {
-    const studentSkills = studentProfile?.skills || []
-    const studentInterests = studentProfile?.interests || []
-
     return opportunities
       .map(opp => {
-        const oppSkills = opp.skills_needed || []
-        const oppAreas = opp.research_areas || []
-
-        const matchedSkills = studentSkills.filter(s => 
-          oppSkills.some(os => os.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(os.toLowerCase()))
-        )
-        const matchedInterests = studentInterests.filter(i => 
-          oppAreas.some(oa => oa.toLowerCase().includes(i.toLowerCase()) || i.toLowerCase().includes(oa.toLowerCase()))
-        )
-
-        const skillScore = oppSkills.length > 0 ? matchedSkills.length / oppSkills.length : 0
-        const interestScore = oppAreas.length > 0 ? matchedInterests.length / oppAreas.length : 0
-        const matchScore = (skillScore * 0.6) + (interestScore * 0.4)
-
-        return { ...opp, matchScore, matchedSkills, matchedInterests }
+        const match = scoreMatch(studentProfile, opp, studentCountry)
+        return { ...opp, matchScore: match.score, matchedSkills: match.matchedSkills, matchedInterests: match.matchedInterests }
       })
       .filter(opp => {
         // Search filter
@@ -79,10 +74,26 @@ export function ExploreOpportunities({
             opp.description.toLowerCase().includes(query) ||
             opp.professor?.full_name?.toLowerCase().includes(query) ||
             opp.professor?.university?.toLowerCase().includes(query) ||
+            opp.country?.toLowerCase().includes(query) ||
+            opp.city?.toLowerCase().includes(query) ||
             opp.skills_needed?.some(s => s.toLowerCase().includes(query)) ||
             opp.research_areas?.some(a => a.toLowerCase().includes(query))
           if (!matchesSearch) return false
         }
+
+        if (selectedField !== 'all') {
+          const track = opp.field_track
+          const wants = selectedField as FieldTrack
+          const areaMatch = (opp.research_areas || []).some((area) => {
+            const meta = RESEARCH_AREAS.find((item) => item.name === area)
+            return meta && (meta.track === wants || meta.track === 'both')
+          })
+          const trackMatch = track === wants || track === 'both' || (!track && areaMatch)
+          if (!trackMatch) return false
+        }
+
+        if (selectedMode !== 'all' && opp.work_mode !== selectedMode) return false
+        if (selectedCountry !== 'all' && opp.country !== selectedCountry) return false
 
         // Area filter
         if (selectedArea && selectedArea !== 'all') {
@@ -109,7 +120,7 @@ export function ExploreOpportunities({
         }
         return 0
       })
-  }, [opportunities, searchQuery, selectedArea, selectedSkills, sortBy, studentProfile])
+  }, [opportunities, searchQuery, selectedArea, selectedCountry, selectedField, selectedMode, selectedSkills, sortBy, studentCountry, studentProfile])
 
   const toggleSkill = (skill: string) => {
     setSelectedSkills(prev => 
@@ -122,11 +133,21 @@ export function ExploreOpportunities({
   const clearFilters = () => {
     setSearchQuery('')
     setSelectedArea('all')
+    setSelectedField('all')
+    setSelectedMode('all')
+    setSelectedCountry('all')
     setSelectedSkills([])
     setSortBy('match')
   }
 
-  const hasActiveFilters = searchQuery || selectedArea !== 'all' || selectedSkills.length > 0
+  const activeFilterCount =
+    (selectedArea !== 'all' ? 1 : 0) +
+    (selectedField !== 'all' ? 1 : 0) +
+    (selectedMode !== 'all' ? 1 : 0) +
+    (selectedCountry !== 'all' ? 1 : 0) +
+    selectedSkills.length
+
+  const hasActiveFilters = Boolean(searchQuery) || activeFilterCount > 0
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -136,7 +157,7 @@ export function ExploreOpportunities({
           Explore Opportunities
         </h1>
         <p className="text-muted-foreground">
-          Discover research positions that match your skills and interests
+          Medical and technology roles, ranked by skills, field, and whether you can join from where you are
         </p>
       </div>
 
@@ -146,7 +167,7 @@ export function ExploreOpportunities({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by title, skills, university..."
+              placeholder="Search by title, skill, university, or country..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -186,7 +207,7 @@ export function ExploreOpportunities({
               Filters
               {hasActiveFilters && (
                 <Badge variant="default" className="ml-2 h-5 w-5 p-0 flex items-center justify-center">
-                  {(selectedArea !== 'all' ? 1 : 0) + selectedSkills.length}
+                  {activeFilterCount}
                 </Badge>
               )}
             </Button>
@@ -198,6 +219,51 @@ export function ExploreOpportunities({
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-4">
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Field</label>
+                    <Select value={selectedField} onValueChange={setSelectedField}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All fields" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All fields</SelectItem>
+                        {Object.entries(FIELD_TRACK_LABELS).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Work arrangement</label>
+                    <Select value={selectedMode} onValueChange={setSelectedMode}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any arrangement" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any arrangement</SelectItem>
+                        {Object.entries(WORK_MODE_LABELS).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Lab country</label>
+                    <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Anywhere" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Anywhere</SelectItem>
+                        {countries.map(country => (
+                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Research Area</label>
                   <Select value={selectedArea} onValueChange={setSelectedArea}>
@@ -207,7 +273,7 @@ export function ExploreOpportunities({
                     <SelectContent>
                       <SelectItem value="all">All Areas</SelectItem>
                       {RESEARCH_AREAS.map(area => (
-                        <SelectItem key={area} value={area}>{area}</SelectItem>
+                        <SelectItem key={area.name} value={area.name}>{area.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

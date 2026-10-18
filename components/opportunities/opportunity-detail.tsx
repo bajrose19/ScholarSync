@@ -31,6 +31,8 @@ import {
   Building2,
   Mail,
   Globe,
+  Globe2,
+  MapPin,
   Sparkles,
   Send,
   Loader2,
@@ -40,10 +42,20 @@ import {
   Trash2
 } from 'lucide-react'
 import type { Profile, StudentProfile, Opportunity, Application } from '@/lib/types'
+import { scoreMatch } from '@/lib/match'
+import {
+  FIELD_TRACK_LABELS,
+  VISA_SUPPORT_LABELS,
+  WORK_MODE_LABELS,
+  formatPlace,
+  isFieldTrack,
+  isVisaSupport,
+  isWorkMode,
+} from '@/lib/catalog'
 
 interface OpportunityDetailProps {
   opportunity: Opportunity & { 
-    professor?: Profile & { professor_profiles?: { research_areas: string[], lab_name: string | null, website_url: string | null } } 
+    professor?: Profile & { professor_profiles?: { title?: string | null, research_areas: string[], lab_name: string | null, website_url: string | null } } 
   }
   profile: Profile | null
   studentProfile: StudentProfile | null
@@ -84,21 +96,12 @@ export function OpportunityDetail({
     : null
   const isExpired = deadline && deadline < new Date()
 
-  // Calculate match score
-  const studentSkills = studentProfile?.skills || []
-  const studentInterests = studentProfile?.interests || []
   const oppSkills = opportunity.skills_needed || []
   const oppAreas = opportunity.research_areas || []
-
-  const matchedSkills = studentSkills.filter(s => 
-    oppSkills.some(os => os.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(os.toLowerCase()))
-  )
-  const matchedInterests = studentInterests.filter(i => 
-    oppAreas.some(oa => oa.toLowerCase().includes(i.toLowerCase()) || i.toLowerCase().includes(oa.toLowerCase()))
-  )
-  const skillScore = oppSkills.length > 0 ? matchedSkills.length / oppSkills.length : 0
-  const interestScore = oppAreas.length > 0 ? matchedInterests.length / oppAreas.length : 0
-  const matchScore = (skillScore * 0.6) + (interestScore * 0.4)
+  const match = scoreMatch(studentProfile, opportunity, profile?.country)
+  const matchScore = isStudent ? match.score : 0
+  const { matchedSkills, matchedInterests, reasoning } = match
+  const place = formatPlace(opportunity.city, opportunity.country)
 
   const toggleSave = async () => {
     if (isToggling) return
@@ -210,7 +213,7 @@ export function OpportunityDetail({
                     {Math.round(matchScore * 100)}% Match
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Based on {matchedSkills.length} matching skill{matchedSkills.length !== 1 ? 's' : ''} and {matchedInterests.length} research interest{matchedInterests.length !== 1 ? 's' : ''}
+                    {reasoning}
                   </p>
                 </div>
               </div>
@@ -218,6 +221,30 @@ export function OpportunityDetail({
 
             {/* Quick Info */}
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              {isFieldTrack(opportunity.field_track) && (
+                <Badge variant="secondary">{FIELD_TRACK_LABELS[opportunity.field_track]}</Badge>
+              )}
+              {isWorkMode(opportunity.work_mode) && (
+                <span className="flex items-center gap-1.5">
+                  {opportunity.work_mode === 'remote' ? <Globe2 className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+                  {WORK_MODE_LABELS[opportunity.work_mode]}
+                </span>
+              )}
+              {place && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" />
+                  {place}
+                </span>
+              )}
+              {opportunity.work_mode !== 'remote' && (
+                <span className="flex items-center gap-1.5">
+                  <Globe2 className="h-4 w-4" />
+                  {opportunity.open_to_international === false
+                    ? 'Local students only'
+                    : 'Open to international students'}
+                  {isVisaSupport(opportunity.visa_support) ? ` · ${VISA_SUPPORT_LABELS[opportunity.visa_support]}` : ''}
+                </span>
+              )}
               {opportunity.duration && (
                 <span className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4" />

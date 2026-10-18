@@ -41,6 +41,7 @@ export default async function ExplorePage() {
       opportunities={opportunities || []}
       savedIds={savedIds}
       studentProfile={profile.student_profiles}
+      studentCountry={profile.country}
     />
   )
 }

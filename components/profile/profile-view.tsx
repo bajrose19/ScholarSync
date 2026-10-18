@@ -19,6 +19,7 @@ import {
   ArrowLeft
 } from 'lucide-react'
 import type { Profile, StudentProfile, ProfessorProfile } from '@/lib/types'
+import { FIELD_TRACK_LABELS, formatPlace, isFieldTrack } from '@/lib/catalog'
 
 interface ProfileViewProps {
   profile: Profile
@@ -88,6 +89,9 @@ export function ProfileView({
                     <Badge variant={isStudent ? 'default' : 'secondary'}>
                       {isStudent ? 'Student' : professorProfile?.title || 'Professor'}
                     </Badge>
+                    {isStudent && studentProfile && isFieldTrack(studentProfile.field_track) && (
+                      <Badge variant="outline">{FIELD_TRACK_LABELS[studentProfile.field_track]}</Badge>
+                    )}
                     {studentProfile?.major && (
                       <span className="text-muted-foreground text-sm">
                         {studentProfile.major}
@@ -111,8 +115,26 @@ export function ProfileView({
                   )}
                   {profile.department && (
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4" />
+                      <Briefcase className="h-4 w-4" />
                       {profile.department}
+                    </div>
+                  )}
+                  {formatPlace(profile.city, profile.country) && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4" />
+                      {formatPlace(profile.city, profile.country)}
+                    </div>
+                  )}
+                  {studentProfile?.open_to_remote && (
+                    <div className="flex items-center gap-1.5">
+                      <Globe className="h-4 w-4" />
+                      Open to remote
+                    </div>
+                  )}
+                  {studentProfile?.willing_to_relocate && (
+                    <div className="flex items-center gap-1.5">
+                      <Globe className="h-4 w-4" />
+                      Willing to relocate
                     </div>
                   )}
                   {studentProfile?.graduation_year && (

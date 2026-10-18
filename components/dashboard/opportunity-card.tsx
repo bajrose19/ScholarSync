@@ -13,8 +13,11 @@ import {
   DollarSign, 
   Users,
   Building2,
+  Globe2,
+  MapPin,
   Sparkles
 } from 'lucide-react'
+import { FIELD_TRACK_LABELS, WORK_MODE_LABELS, formatPlace, isFieldTrack, isVisaSupport, isWorkMode } from '@/lib/catalog'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
 import type { Opportunity, Profile } from '@/lib/types'
@@ -157,6 +160,25 @@ export function OpportunityCard({
             </div>
           )}
 
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {isFieldTrack(opportunity.field_track) && (
+              <Badge variant="secondary" className="text-xs">
+                {FIELD_TRACK_LABELS[opportunity.field_track]}
+              </Badge>
+            )}
+            {isWorkMode(opportunity.work_mode) && (
+              <Badge variant="outline" className="text-xs">
+                {opportunity.work_mode === 'remote' ? <Globe2 className="mr-1 h-3 w-3" /> : <MapPin className="mr-1 h-3 w-3" />}
+                {WORK_MODE_LABELS[opportunity.work_mode]}
+              </Badge>
+            )}
+            {formatPlace(opportunity.city, opportunity.country) && (
+              <Badge variant="outline" className="text-xs">
+                {formatPlace(opportunity.city, opportunity.country)}
+              </Badge>
+            )}
+          </div>
+
           {/* Research Areas */}
           {opportunity.research_areas && opportunity.research_areas.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -181,6 +203,13 @@ export function OpportunityCard({
               <span className="flex items-center gap-1">
                 <DollarSign className="h-3 w-3" />
                 {opportunity.compensation}
+              </span>
+            )}
+            {opportunity.work_mode && opportunity.work_mode !== 'remote' && opportunity.open_to_international && (
+              <span className="flex items-center gap-1">
+                <Globe2 className="h-3 w-3" />
+                International
+                {isVisaSupport(opportunity.visa_support) && opportunity.visa_support === 'yes' ? ' · visa support' : ''}
               </span>
             )}
             {opportunity.positions_available > 0 && (

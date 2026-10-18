@@ -14,6 +14,8 @@ create table if not exists public.profiles (
   department text,
   bio text,
   avatar_url text,
+  country text,
+  city text,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
@@ -30,6 +32,9 @@ create table if not exists public.student_profiles (
   resume_url text,
   linkedin_url text,
   github_url text,
+  field_track text check (field_track is null or field_track in ('medical', 'technology', 'both')),
+  open_to_remote boolean default true,
+  willing_to_relocate boolean default false,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
@@ -59,6 +64,12 @@ create table if not exists public.opportunities (
   compensation text,
   positions_available integer default 1,
   application_deadline timestamp with time zone,
+  field_track text check (field_track is null or field_track in ('medical', 'technology', 'both')),
+  country text,
+  city text,
+  work_mode text check (work_mode is null or work_mode in ('remote', 'hybrid', 'onsite')) default 'onsite',
+  open_to_international boolean default true,
+  visa_support text check (visa_support is null or visa_support in ('yes', 'no', 'case_by_case')) default 'case_by_case',
   status text check (status in ('open', 'closed', 'filled')) default 'open',
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
@@ -140,12 +151,13 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, full_name, role)
+  insert into public.profiles (id, email, full_name, role, university)
   values (
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data ->> 'full_name', null),
-    coalesce(new.raw_user_meta_data ->> 'role', 'student')
+    coalesce(new.raw_user_meta_data ->> 'role', 'student'),
+    nullif(new.raw_user_meta_data ->> 'university', '')
   )
   on conflict (id) do nothing;
   

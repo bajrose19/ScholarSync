@@ -55,15 +55,15 @@ export default async function LandingPage() {
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6 px-4 py-1.5">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
-              AI-Powered Research Matching
+              Medical and technology research, worldwide
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
-              Connect with Research Opportunities That{' '}
-              <span className="text-primary">Match Your Potential</span>
+              Find a research lab you can actually{' '}
+              <span className="text-primary">join from where you are</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty">
-              ScholarSync uses AI to match students with research opportunities based on skills, 
-              interests, and academic goals. Find your perfect research fit.
+              ScholarSync matches medical students, technology students, and people working across both
+              with labs by skills, field, country, and whether the role is remote, hybrid, or on-site.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="text-base px-8">
@@ -90,7 +90,7 @@ export default async function LandingPage() {
               How ScholarSync Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our platform makes finding the perfect research match simple and efficient
+              A lab posts a role. A student sees whether it fits their field and whether they can get there.
             </p>
           </div>
 
@@ -102,8 +102,7 @@ export default async function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Create Your Profile</h3>
                 <p className="text-muted-foreground">
-                  Add your skills, interests, and academic background to help our AI understand 
-                  what opportunities suit you best.
+                  Choose medical, technology, or both. Add your country and whether you can work remotely or relocate.
                 </p>
               </CardContent>
             </Card>
@@ -115,8 +114,7 @@ export default async function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Get AI Matches</h3>
                 <p className="text-muted-foreground">
-                  Our intelligent algorithm analyzes your profile and matches you with 
-                  research opportunities that align with your goals.
+                  Rankings use shared skills, research area, field, and whether a remote or international role is realistic for you.
                 </p>
               </CardContent>
             </Card>
@@ -128,8 +126,7 @@ export default async function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Apply with Ease</h3>
                 <p className="text-muted-foreground">
-                  Apply to opportunities with one click. Track your applications and 
-                  communicate with professors seamlessly.
+                  Apply in the app, save roles, and track each application from one dashboard.
                 </p>
               </CardContent>
             </Card>
@@ -151,11 +148,11 @@ export default async function LandingPage() {
               </div>
               <ul className="space-y-4">
                 {[
-                  'AI-powered opportunity matching based on your skills',
-                  'Explore research positions across multiple universities',
-                  'Track all your applications in one place',
-                  'Build your research profile and showcase experience',
-                  'Get notified when new matching opportunities are posted',
+                  'Separate tracks for medicine, technology, and work that spans both',
+                  'See remote roles and labs that accept international students',
+                  'Filter by country, work arrangement, and research area',
+                  'Track every application in one place',
+                  'Show professors your skills, location, and whether you can relocate',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -181,11 +178,11 @@ export default async function LandingPage() {
               </div>
               <ul className="space-y-4">
                 {[
-                  'Post research opportunities and reach qualified students',
-                  'AI matching helps find students with the right skills',
-                  'Review applications and student profiles efficiently',
-                  'Manage multiple positions from one dashboard',
-                  'Build your lab team with talented researchers',
+                  'Post medical, technology, or cross-disciplinary openings',
+                  'Say if the role is remote, hybrid, or on-site',
+                  'Mark whether international students and visa support are possible',
+                  'Review applications against the skills you asked for',
+                  'Reach students outside your own university',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -212,8 +209,7 @@ export default async function LandingPage() {
               Ready to Find Your Research Match?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Join thousands of students and professors using ScholarSync to 
-              connect and collaborate on groundbreaking research.
+              Create a free account, add where you are, and start with the roles you can actually take.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="text-base">
@@ -243,7 +239,7 @@ export default async function LandingPage() {
               <span className="font-semibold">ScholarSync</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              2024 ScholarSync. Connecting students with research opportunities.
+              2026 ScholarSync. Research roles for medical and technology students worldwide.
             </p>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <Link href="/terms" className="hover:text-foreground transition-colors">

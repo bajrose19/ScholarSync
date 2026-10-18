@@ -79,7 +79,7 @@ export default function SignUpPage() {
             <span className="text-2xl font-bold text-foreground">ScholarSync</span>
           </Link>
           <p className="text-muted-foreground">
-            Start your research journey today
+            Medical students, technology students, and labs anywhere
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export default function SignUpPage() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Create an account</CardTitle>
             <CardDescription className="text-center">
-              Join ScholarSync to discover research opportunities
+              Students find labs. Professors post roles students can join remotely or abroad.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -130,7 +130,7 @@ export default function SignUpPage() {
                 <Input
                   id="university"
                   type="text"
-                  placeholder="Stanford University"
+                  placeholder="Your university, anywhere"
                   value={university}
                   onChange={(e) => setUniversity(e.target.value)}
                   disabled={isLoading}

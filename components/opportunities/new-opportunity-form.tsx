@@ -19,21 +19,25 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ArrowLeft, Loader2, AlertCircle, X, Plus } from 'lucide-react'
+import { CountrySelect } from '@/components/country-select'
+import { Switch } from '@/components/ui/switch'
+import {
+  FIELD_TRACKS,
+  FIELD_TRACK_LABELS,
+  VISA_SUPPORT_LABELS,
+  VISA_SUPPORT_OPTIONS,
+  WORK_MODE_LABELS,
+  WORK_MODES,
+  researchAreasFor,
+  suggestedSkills,
+  type FieldTrack,
+  type VisaSupport,
+  type WorkMode,
+} from '@/lib/catalog'
 
 interface NewOpportunityFormProps {
   professorId: string
 }
-
-const RESEARCH_AREAS = [
-  'Computer Science', 'Biology', 'Chemistry', 'Physics', 'Mathematics',
-  'Engineering', 'Medicine', 'Psychology', 'Economics', 'Environmental Science'
-]
-
-const SUGGESTED_SKILLS = [
-  'Python', 'R', 'Machine Learning', 'Data Analysis', 'JavaScript', 
-  'Statistics', 'Lab Techniques', 'Scientific Writing', 'MATLAB', 'SQL',
-  'C++', 'Java', 'Research Methods', 'Literature Review'
-]
 
 export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
   const router = useRouter()
@@ -46,6 +50,12 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
   const [skills, setSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState('')
   const [researchAreas, setResearchAreas] = useState<string[]>([])
+  const [fieldTrack, setFieldTrack] = useState<FieldTrack | ''>('')
+  const [country, setCountry] = useState('')
+  const [city, setCity] = useState('')
+  const [workMode, setWorkMode] = useState<WorkMode>('onsite')
+  const [openToInternational, setOpenToInternational] = useState(true)
+  const [visaSupport, setVisaSupport] = useState<VisaSupport>('case_by_case')
   const [duration, setDuration] = useState('')
   const [compensation, setCompensation] = useState('')
   const [positions, setPositions] = useState('1')
@@ -88,6 +98,18 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
       return
     }
 
+    if (!fieldTrack) {
+      setError('Choose whether this role is medical, technology, or both')
+      setIsSubmitting(false)
+      return
+    }
+
+    if (!country) {
+      setError('Country is required so students know where the lab is based')
+      setIsSubmitting(false)
+      return
+    }
+
     const supabase = createClient()
 
     const { data, error: insertError } = await supabase
@@ -99,6 +121,12 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
         requirements: requirements.trim() || null,
         skills_needed: skills,
         research_areas: researchAreas,
+        field_track: fieldTrack,
+        country,
+        city: city.trim() || null,
+        work_mode: workMode,
+        open_to_international: workMode === 'remote' ? true : openToInternational,
+        visa_support: workMode === 'remote' ? null : visaSupport,
         duration: duration || null,
         compensation: compensation || null,
         positions_available: parseInt(positions) || 1,
@@ -131,7 +159,7 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
         <CardHeader>
           <CardTitle>Post New Opportunity</CardTitle>
           <CardDescription>
-            Create a research opportunity listing to attract talented students
+            List a medical, technology, or cross-disciplinary role students can find worldwide
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -153,6 +181,91 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label>Field *</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {FIELD_TRACKS.map((track) => (
+                  <button
+                    key={track}
+                    type="button"
+                    onClick={() => setFieldTrack(track)}
+                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
+                      fieldTrack === track
+                        ? 'border-primary bg-primary/5'
+                        : 'border-muted hover:border-primary/50'
+                    }`}
+                  >
+                    {FIELD_TRACK_LABELS[track]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="country">Lab country or region *</Label>
+                <CountrySelect id="country" value={country} onChange={setCountry} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Where students would be based"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>How students join</Label>
+              <Select value={workMode} onValueChange={(value) => setWorkMode(value as WorkMode)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WORK_MODES.map((mode) => (
+                    <SelectItem key={mode} value={mode}>
+                      {WORK_MODE_LABELS[mode]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {workMode !== 'remote' && (
+              <div className="space-y-4 rounded-lg border p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <Label htmlFor="international">Open to international students</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Turn this off if the role is only for students already in {country || 'this country'}.
+                    </p>
+                  </div>
+                  <Switch
+                    id="international"
+                    checked={openToInternational}
+                    onCheckedChange={setOpenToInternational}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Visa support</Label>
+                  <Select value={visaSupport} onValueChange={(value) => setVisaSupport(value as VisaSupport)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VISA_SUPPORT_OPTIONS.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {VISA_SUPPORT_LABELS[option]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="description">Description *</Label>
@@ -217,7 +330,7 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
 
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs text-muted-foreground">Suggestions:</span>
-                {SUGGESTED_SKILLS.filter(s => !skills.includes(s)).slice(0, 6).map((skill) => (
+                {suggestedSkills(fieldTrack).filter(s => !skills.includes(s)).slice(0, 6).map((skill) => (
                   <Badge
                     key={skill}
                     variant="outline"
@@ -234,14 +347,14 @@ export function NewOpportunityForm({ professorId }: NewOpportunityFormProps) {
             <div className="space-y-3">
               <Label>Research Areas</Label>
               <div className="flex flex-wrap gap-2">
-                {RESEARCH_AREAS.map((area) => (
+                {researchAreasFor(fieldTrack).map((area) => (
                   <Badge
-                    key={area}
-                    variant={researchAreas.includes(area) ? 'default' : 'outline'}
+                    key={area.name}
+                    variant={researchAreas.includes(area.name) ? 'default' : 'outline'}
                     className="cursor-pointer"
-                    onClick={() => toggleResearchArea(area)}
+                    onClick={() => toggleResearchArea(area.name)}
                   >
-                    {researchAreas.includes(area) ? '✓ ' : ''}{area}
+                    {researchAreas.includes(area.name) ? '✓ ' : ''}{area.name}
                   </Badge>
                 ))}
               </div>

@@ -9,6 +9,8 @@ export interface Profile {
   department: string | null
   bio: string | null
   avatar_url: string | null
+  country: string | null
+  city: string | null
   created_at: string
   updated_at: string
 }
@@ -24,6 +26,9 @@ export interface StudentProfile {
   resume_url: string | null
   linkedin_url: string | null
   github_url: string | null
+  field_track: 'medical' | 'technology' | 'both' | null
+  open_to_remote: boolean | null
+  willing_to_relocate: boolean | null
   created_at: string
   updated_at: string
 }
@@ -51,6 +56,12 @@ export interface Opportunity {
   compensation: string | null
   positions_available: number
   application_deadline: string | null
+  field_track: 'medical' | 'technology' | 'both' | null
+  country: string | null
+  city: string | null
+  work_mode: 'remote' | 'hybrid' | 'onsite' | null
+  open_to_international: boolean | null
+  visa_support: 'yes' | 'no' | 'case_by_case' | null
   status: 'open' | 'closed' | 'filled'
   created_at: string
   updated_at: string
@@ -102,6 +113,11 @@ export interface StudentProfileFormData {
   interests: string[]
   linkedin_url: string
   github_url: string
+  field_track: 'medical' | 'technology' | 'both' | ''
+  country: string
+  city: string
+  open_to_remote: boolean
+  willing_to_relocate: boolean
 }
 
 export interface ProfessorProfileFormData {

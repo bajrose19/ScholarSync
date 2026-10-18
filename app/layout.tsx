@@ -8,9 +8,9 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: 'ScholarSync - Research Opportunity Matching',
-  description: 'AI-powered platform connecting students with research opportunities. Find your perfect research match with professors and labs.',
+  description: 'Match medical and technology students with research labs worldwide, including remote roles and positions open to international students.',
   generator: 'v0.app',
-  keywords: ['research', 'students', 'professors', 'opportunities', 'AI matching', 'academia', 'university'],
+  keywords: ['research', 'medical students', 'technology students', 'remote research', 'international students', 'professors', 'labs'],
   authors: [{ name: 'ScholarSync' }],
   icons: {
     icon: [

@@ -31,7 +31,6 @@ export default async function DashboardPage() {
       .select('*, professor:profiles!professor_id(*)')
       .eq('status', 'open')
       .order('created_at', { ascending: false })
-      .limit(20)
 
     // Fetch saved opportunities
     const { data: savedOpportunities } = await supabase

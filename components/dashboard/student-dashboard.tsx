@@ -14,6 +14,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import type { Profile, StudentProfile, Opportunity, Application } from '@/lib/types'
+import { scoreMatch } from '@/lib/match'
 
 interface StudentDashboardProps {
   profile: Profile
@@ -32,25 +33,9 @@ export function StudentDashboard({
 }: StudentDashboardProps) {
   const firstName = profile.full_name?.split(' ')[0] || 'there'
   
-  // Simple matching: score based on skill/interest overlap
   const scoredOpportunities = opportunities.map(opp => {
-    const studentSkills = studentProfile?.skills || []
-    const studentInterests = studentProfile?.interests || []
-    const oppSkills = opp.skills_needed || []
-    const oppAreas = opp.research_areas || []
-
-    const matchedSkills = studentSkills.filter(s => 
-      oppSkills.some(os => os.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(os.toLowerCase()))
-    )
-    const matchedInterests = studentInterests.filter(i => 
-      oppAreas.some(oa => oa.toLowerCase().includes(i.toLowerCase()) || i.toLowerCase().includes(oa.toLowerCase()))
-    )
-
-    const skillScore = oppSkills.length > 0 ? matchedSkills.length / oppSkills.length : 0
-    const interestScore = oppAreas.length > 0 ? matchedInterests.length / oppAreas.length : 0
-    const score = (skillScore * 0.6) + (interestScore * 0.4)
-
-    return { ...opp, matchScore: score, matchedSkills, matchedInterests }
+    const match = scoreMatch(studentProfile, opp, profile.country)
+    return { ...opp, matchScore: match.score, matchedSkills: match.matchedSkills, matchedInterests: match.matchedInterests }
   }).sort((a, b) => b.matchScore - a.matchScore)
 
   const topMatches = scoredOpportunities.slice(0, 6)
@@ -144,7 +129,7 @@ export function StudentDashboard({
                   Recommended for You
                 </CardTitle>
                 <CardDescription>
-                  Based on your skills and interests
+                  Ranked by field, skills, and whether you can join remotely or in person
                 </CardDescription>
               </div>
               <Button asChild variant="ghost" size="sm">

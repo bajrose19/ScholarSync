@@ -12,6 +12,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { GraduationCap, Loader2, AlertCircle, X, Plus, ArrowRight, ArrowLeft } from 'lucide-react'
+import { CountrySelect } from '@/components/country-select'
+import { Switch } from '@/components/ui/switch'
+import {
+  FIELD_TRACKS,
+  FIELD_TRACK_LABELS,
+  researchAreasFor,
+  suggestedInterests,
+  suggestedSkills,
+  type FieldTrack,
+} from '@/lib/catalog'
 
 interface ProfileSetupFormProps {
   userId: string
@@ -20,21 +30,6 @@ interface ProfileSetupFormProps {
   initialFullName: string
   initialUniversity: string
 }
-
-const SUGGESTED_SKILLS = [
-  'Python', 'R', 'Machine Learning', 'Data Analysis', 'JavaScript', 
-  'Statistics', 'Lab Techniques', 'Scientific Writing', 'MATLAB', 'SQL'
-]
-
-const SUGGESTED_INTERESTS = [
-  'Artificial Intelligence', 'Bioinformatics', 'Climate Science', 'Neuroscience',
-  'Quantum Computing', 'Robotics', 'Genomics', 'Economics', 'Psychology', 'Physics'
-]
-
-const RESEARCH_AREAS = [
-  'Computer Science', 'Biology', 'Chemistry', 'Physics', 'Mathematics',
-  'Engineering', 'Medicine', 'Psychology', 'Economics', 'Environmental Science'
-]
 
 export function ProfileSetupForm({ 
   userId, 
@@ -52,7 +47,12 @@ export function ProfileSetupForm({
   const [fullName, setFullName] = useState(initialFullName)
   const [university, setUniversity] = useState(initialUniversity)
   const [department, setDepartment] = useState('')
+  const [country, setCountry] = useState('')
+  const [city, setCity] = useState('')
   const [bio, setBio] = useState('')
+  const [fieldTrack, setFieldTrack] = useState<FieldTrack | ''>('')
+  const [openToRemote, setOpenToRemote] = useState(true)
+  const [willingToRelocate, setWillingToRelocate] = useState(false)
 
   // Student specific
   const [major, setMajor] = useState('')
@@ -120,6 +120,8 @@ export function ProfileSetupForm({
           full_name: fullName,
           university,
           department,
+          country: country || null,
+          city: city || null,
           bio,
         })
         .eq('id', userId)
@@ -138,6 +140,9 @@ export function ProfileSetupForm({
             interests,
             linkedin_url: linkedinUrl || null,
             github_url: githubUrl || null,
+            field_track: fieldTrack || null,
+            open_to_remote: openToRemote,
+            willing_to_relocate: willingToRelocate,
           })
           .eq('user_id', userId)
 
@@ -166,7 +171,9 @@ export function ProfileSetupForm({
   }
 
   const canProceed = () => {
-    if (step === 1) return fullName.trim().length > 0
+    if (step === 1) {
+      return fullName.trim().length > 0 && country.length > 0 && (!isStudent || fieldTrack.length > 0)
+    }
     if (step === 2 && isStudent) return skills.length > 0 || interests.length > 0
     if (step === 2 && !isStudent) return researchAreas.length > 0
     if (step === 3 && isStudent) return true
@@ -207,10 +214,10 @@ export function ProfileSetupForm({
               {step === 3 && 'Additional details'}
             </CardTitle>
             <CardDescription>
-              {step === 1 && 'This helps us match you with the right opportunities'}
-              {step === 2 && isStudent && 'Add your technical skills and research interests'}
-              {step === 2 && !isStudent && 'Select your primary research areas'}
-              {step === 3 && 'Optional: Add links to your profiles'}
+              {step === 1 && 'Country and field decide which labs around the world can see you'}
+              {step === 2 && isStudent && 'Add the skills and research interests labs should match on'}
+              {step === 2 && !isStudent && 'Select the medical, technology, or cross-disciplinary areas you supervise'}
+              {step === 3 && 'Say whether you can work remotely or move, then add profile links'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -245,9 +252,50 @@ export function ProfileSetupForm({
                     id="university"
                     value={university}
                     onChange={(e) => setUniversity(e.target.value)}
-                    placeholder="Stanford University"
+                    placeholder="Tribhuvan University, Johns Hopkins, TU Delft..."
                   />
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country or region *</Label>
+                    <CountrySelect id="country" value={country} onChange={setCountry} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="Kathmandu, Boston, Singapore..."
+                    />
+                  </div>
+                </div>
+
+                {isStudent && (
+                  <div className="space-y-2">
+                    <Label>Field *</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {FIELD_TRACKS.map((track) => (
+                        <button
+                          key={track}
+                          type="button"
+                          onClick={() => setFieldTrack(track)}
+                          className={`p-3 rounded-lg border-2 text-left transition-colors ${
+                            fieldTrack === track
+                              ? 'border-primary bg-primary/5'
+                              : 'border-muted hover:border-primary/50'
+                          }`}
+                        >
+                          <span className="text-sm font-medium">{FIELD_TRACK_LABELS[track]}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Choose both if you work across medicine and computing, such as digital health or bioinformatics.
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="department">Department</Label>
@@ -294,16 +342,16 @@ export function ProfileSetupForm({
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="gpa">GPA (optional)</Label>
+                      <Label htmlFor="gpa">Grade or GPA (optional)</Label>
                       <Input
                         id="gpa"
                         type="number"
                         step="0.01"
                         min="0"
-                        max="4"
+                        max="100"
                         value={gpa}
                         onChange={(e) => setGpa(e.target.value)}
-                        placeholder="3.80"
+                        placeholder="3.80 or 85"
                       />
                     </div>
                   </>
@@ -377,7 +425,7 @@ export function ProfileSetupForm({
 
                   <div className="flex flex-wrap gap-2">
                     <span className="text-xs text-muted-foreground">Suggestions:</span>
-                    {SUGGESTED_SKILLS.filter(s => !skills.includes(s)).slice(0, 5).map((skill) => (
+                    {suggestedSkills(fieldTrack).filter(s => !skills.includes(s)).slice(0, 6).map((skill) => (
                       <Badge
                         key={skill}
                         variant="outline"
@@ -430,7 +478,7 @@ export function ProfileSetupForm({
 
                   <div className="flex flex-wrap gap-2">
                     <span className="text-xs text-muted-foreground">Suggestions:</span>
-                    {SUGGESTED_INTERESTS.filter(i => !interests.includes(i)).slice(0, 5).map((interest) => (
+                    {suggestedInterests(fieldTrack).filter(i => !interests.includes(i)).slice(0, 6).map((interest) => (
                       <Badge
                         key={interest}
                         variant="outline"
@@ -449,17 +497,18 @@ export function ProfileSetupForm({
               <div className="space-y-4">
                 <Label>Research Areas *</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {RESEARCH_AREAS.map((area) => (
+                  {researchAreasFor('both').map((area) => (
                     <div
-                      key={area}
-                      onClick={() => toggleResearchArea(area)}
+                      key={area.name}
+                      onClick={() => toggleResearchArea(area.name)}
                       className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                        researchAreas.includes(area)
+                        researchAreas.includes(area.name)
                           ? 'border-primary bg-primary/5'
                           : 'border-muted hover:border-primary/50'
                       }`}
                     >
-                      <span className="text-sm font-medium">{area}</span>
+                      <span className="text-sm font-medium">{area.name}</span>
+                      <span className="block text-xs text-muted-foreground">{FIELD_TRACK_LABELS[area.track]}</span>
                     </div>
                   ))}
                 </div>
@@ -469,6 +518,20 @@ export function ProfileSetupForm({
             {/* Step 3: Links (Student only) */}
             {step === 3 && isStudent && (
               <div className="space-y-4">
+                <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+                  <div>
+                    <Label htmlFor="openToRemote">Open to remote research</Label>
+                    <p className="text-xs text-muted-foreground">Includes labs you can join without moving.</p>
+                  </div>
+                  <Switch id="openToRemote" checked={openToRemote} onCheckedChange={setOpenToRemote} />
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+                  <div>
+                    <Label htmlFor="willingToRelocate">Willing to relocate</Label>
+                    <p className="text-xs text-muted-foreground">Needed for on-site roles outside your country.</p>
+                  </div>
+                  <Switch id="willingToRelocate" checked={willingToRelocate} onCheckedChange={setWillingToRelocate} />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
                   <Input
