@@ -2,12 +2,10 @@
 
 ScholarSync matches students with research opportunities. The app is Python, HTML, CSS, and a small amount of JavaScript. Accounts, profiles, applications, and listings live in a SQLite file at `.data/scholarsync.db` on the computer that is running the app. It does not call an external database, auth provider, or analytics service.
 
-The Python app is on the branch `cursor/local-only-app-2418`. The `main` branch is the older Next.js project and does not include `requirements.txt`.
-
 ## Run it on your computer
 
 ```bat
-git clone --branch cursor/local-only-app-2418 https://github.com/bajrose19/ScholarSync.git
+git clone https://github.com/bajrose19/ScholarSync.git
 cd ScholarSync
 python -m pip install -r requirements.txt
 python -m scholarsync
@@ -37,7 +35,7 @@ cloudflared tunnel --url http://localhost:3000
 
 Cloudflare prints an address such as `https://something.trycloudflare.com`. That link works only while both windows stay open. The next tunnel gets a new address.
 
-For a lasting name, host the branch `cursor/local-only-app-2418` (for example on [Render](https://render.com)):
+For a lasting name, host the `main` branch (for example on [Render](https://render.com)):
 
 - Build command: `pip install -r requirements.txt`
 - Start command: `python -m scholarsync`
