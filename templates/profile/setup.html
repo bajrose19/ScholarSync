@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Set up your profile · ScholarSync{% endblock %}
+{% block body %}
+<main class="auth-screen">
+  <div class="auth-card wide">
+    <a class="brand" href="{{ url_for('home') }}">
+      {% include "partials/brand.html" %}
+      <span>ScholarSync</span>
+    </a>
+    <noscript>
+      <style>
+        [data-step] { display: block !important; }
+        [data-finish] { display: inline-flex !important; }
+        [data-next], [data-back] { display: none !important; }
+      </style>
+    </noscript>
+    <form method="post" class="card stack" data-steps data-role="{{ current_user.role }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="progress" aria-hidden="true">
+        <span class="on"></span>
+        <span></span>
+        {% if current_user.role == 'student' %}<span></span>{% endif %}
+      </div>
+      {% include "partials/flashes.html" %}
+
+      <section data-step="1">
+        <h1>Tell us about yourself</h1>
+        <p class="muted">This helps matches reflect the right opportunities. Signed in as {{ current_user.email }}.</p>
+        <label>Full name *
+          <input name="full_name" value="{{ current_user.full_name or '' }}" required>
+        </label>
+        <label>University
+          <input name="university" value="{{ current_user.university or '' }}">
+        </label>
+        <label>Department
+          <input name="department">
+        </label>
+        <label>Short bio
+          <textarea name="bio" rows="3"></textarea>
+        </label>
+      </section>
+
+      {% if current_user.role == 'student' %}
+      <section data-step="2" hidden>
+        <h1>Your skills and interests</h1>
+        <p class="muted">Add the skills and research interests you want matched.</p>
+        <fieldset>
+          <legend>Skills</legend>
+          <div class="pills">
+            {% for skill in suggested_skills %}
+              <label class="pill"><input type="checkbox" name="skills" value="{{ skill }}"> {{ skill }}</label>
+            {% endfor %}
+          </div>
+          <label>Other skills, separated by commas
+            <input name="custom_skills" placeholder="Linear algebra, GIS">
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Interests</legend>
+          <div class="pills">
+            {% for interest in suggested_interests %}
+              <label class="pill"><input type="checkbox" name="interests" value="{{ interest }}"> {{ interest }}</label>
+            {% endfor %}
+          </div>
+          <label>Other interests, separated by commas
+            <input name="custom_interests">
+          </label>
+        </fieldset>
+      </section>
+      <section data-step="3" hidden>
+        <h1>Additional details</h1>
+        <p class="muted">Optional links and academic details.</p>
+        <label>Major
+          <input name="major">
+        </label>
+        <div class="pair">
+          <label>Graduation year
+            <input name="graduation_year" inputmode="numeric">
+          </label>
+          <label>GPA
+            <input name="gpa" inputmode="decimal">
+          </label>
+        </div>
+        <label>LinkedIn URL
+          <input name="linkedin_url" type="url">
+        </label>
+        <label>GitHub URL
+          <input name="github_url" type="url">
+        </label>
+      </section>
+      {% else %}
+      <section data-step="2" hidden>
+        <h1>Your research focus</h1>
+        <p class="muted">Select the areas students should match against.</p>
+        <label>Title
+          <input name="title" placeholder="Associate Professor">
+        </label>
+        <label>Lab name
+          <input name="lab_name">
+        </label>
+        <fieldset>
+          <legend>Research areas</legend>
+          <div class="pills">
+            {% for area in research_areas %}
+              <label class="pill"><input type="checkbox" name="research_areas" value="{{ area }}"> {{ area }}</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        <label>Lab website
+          <input name="website_url" type="url">
+        </label>
+      </section>
+      {% endif %}
+
+      <div class="row">
+        <button class="btn btn-ghost" type="button" data-back hidden>Back</button>
+        <button class="btn btn-primary" type="button" data-next>Continue</button>
+        <button class="btn btn-primary" type="submit" data-finish hidden>Save profile</button>
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Edit profile · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page narrow">
+  <section class="card">
+    <h1>Edit profile</h1>
+    {% include "partials/flashes.html" %}
+    <form method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Full name *
+        <input name="full_name" value="{{ current_user.full_name or '' }}" required>
+      </label>
+      <label>University
+        <input name="university" value="{{ current_user.university or '' }}">
+      </label>
+      <label>Department
+        <input name="department" value="{{ current_user.department or '' }}">
+      </label>
+      <label>Bio
+        <textarea name="bio" rows="4">{{ current_user.bio or '' }}</textarea>
+      </label>
+      {% if current_user.role == 'student' %}
+        <label>Major
+          <input name="major" value="{{ current_user.major or '' }}">
+        </label>
+        <div class="pair">
+          <label>Graduation year
+            <input name="graduation_year" value="{{ current_user.graduation_year or '' }}">
+          </label>
+          <label>GPA
+            <input name="gpa" value="{{ current_user.gpa or '' }}">
+          </label>
+        </div>
+        <fieldset>
+          <legend>Skills</legend>
+          <div class="pills">
+            {% for skill in suggested_skills %}
+              <label class="pill"><input type="checkbox" name="skills" value="{{ skill }}" {% if skill in current_user.skills %}checked{% endif %}> {{ skill }}</label>
+            {% endfor %}
+            {% for skill in current_user.skills if skill not in suggested_skills %}
+              <label class="pill"><input type="checkbox" name="skills" value="{{ skill }}" checked> {{ skill }}</label>
+            {% endfor %}
+          </div>
+          <label>Add more skills, separated by commas
+            <input name="custom_skills">
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Interests</legend>
+          <div class="pills">
+            {% for interest in suggested_interests %}
+              <label class="pill"><input type="checkbox" name="interests" value="{{ interest }}" {% if interest in current_user.interests %}checked{% endif %}> {{ interest }}</label>
+            {% endfor %}
+            {% for interest in current_user.interests if interest not in suggested_interests %}
+              <label class="pill"><input type="checkbox" name="interests" value="{{ interest }}" checked> {{ interest }}</label>
+            {% endfor %}
+          </div>
+          <label>Add more interests, separated by commas
+            <input name="custom_interests">
+          </label>
+        </fieldset>
+        <label>LinkedIn URL
+          <input name="linkedin_url" value="{{ current_user.linkedin_url or '' }}">
+        </label>
+        <label>GitHub URL
+          <input name="github_url" value="{{ current_user.github_url or '' }}">
+        </label>
+      {% else %}
+        <label>Title
+          <input name="title" value="{{ current_user.title or '' }}">
+        </label>
+        <label>Lab name
+          <input name="lab_name" value="{{ current_user.lab_name or '' }}">
+        </label>
+        <fieldset>
+          <legend>Research areas</legend>
+          <div class="pills">
+            {% for area in research_areas %}
+              <label class="pill"><input type="checkbox" name="research_areas" value="{{ area }}" {% if area in current_user.research_areas %}checked{% endif %}> {{ area }}</label>
+            {% endfor %}
+            {% for area in current_user.research_areas if area not in research_areas %}
+              <label class="pill"><input type="checkbox" name="research_areas" value="{{ area }}" checked> {{ area }}</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        <label>Website
+          <input name="website_url" value="{{ current_user.website_url or '' }}">
+        </label>
+      {% endif %}
+      <div class="row">
+        <button class="btn btn-primary" type="submit">Save profile</button>
+        <a class="btn btn-ghost" href="{{ url_for('profile_view') }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</main>
+{% endblock %}

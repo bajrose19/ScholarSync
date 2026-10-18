@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Post opportunity · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page narrow">
+  <a href="{{ url_for('dashboard') }}">Back to dashboard</a>
+  <section class="card">
+    <h1>Post new opportunity</h1>
+    <p class="muted">Create a research listing students can match and apply to.</p>
+    {% include "partials/flashes.html" %}
+    <form method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Title *
+        <input name="title" required placeholder="Research Assistant - Machine Learning Lab">
+      </label>
+      <label>Description *
+        <textarea name="description" rows="5" required></textarea>
+      </label>
+      <label>Requirements
+        <textarea name="requirements" rows="3"></textarea>
+      </label>
+      <fieldset>
+        <legend>Skills needed</legend>
+        <div class="pills">
+          {% for skill in suggested_skills %}
+            <label class="pill"><input type="checkbox" name="skills" value="{{ skill }}"> {{ skill }}</label>
+          {% endfor %}
+        </div>
+        <label>Other skills, separated by commas
+          <input name="custom_skills">
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Research areas</legend>
+        <div class="pills">
+          {% for area in research_areas %}
+            <label class="pill"><input type="checkbox" name="research_areas" value="{{ area }}"> {{ area }}</label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <div class="pair">
+        <label>Duration
+          <select name="duration">
+            <option value="">Select duration</option>
+            {% for item in durations %}<option>{{ item }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Compensation
+          <select name="compensation">
+            <option value="">Select compensation</option>
+            {% for item in compensations %}<option>{{ item }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="pair">
+        <label>Positions available
+          <input name="positions" type="number" min="1" value="1">
+        </label>
+        <label>Application deadline
+          <input name="deadline" type="date">
+        </label>
+      </div>
+      <button class="btn btn-primary" type="submit">Publish opportunity</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

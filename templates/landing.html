@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}ScholarSync - Research Opportunity Matching{% endblock %}
+{% block body %}
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="{{ url_for('home') }}">
+      {% include "partials/brand.html" %}
+      <span>ScholarSync</span>
+    </a>
+    <div class="nav">
+      <a href="{{ url_for('login') }}">Sign in</a>
+      <a class="btn btn-primary" href="{{ url_for('signup') }}">Get Started</a>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="wrap narrow center">
+      <p class="eyebrow">Research Matching</p>
+      <h1>Connect with research opportunities that <span>match your potential</span></h1>
+      <p class="lede">ScholarSync matches students with research opportunities based on skills, interests, and academic goals. Find your research fit on this computer.</p>
+      <div class="row center-row">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('signup') }}">Start Exploring</a>
+        <a class="btn btn-outline btn-lg" href="{{ url_for('signup', role='professor') }}">Post Opportunities</a>
+      </div>
+    </div>
+  </section>
+  <section class="band">
+    <div class="wrap">
+      <div class="center">
+        <h2>How ScholarSync works</h2>
+        <p class="muted">Create a profile, see where your skills overlap, and apply from one place.</p>
+      </div>
+      <div class="grid three">
+        <article class="card center">
+          <h3>Create your profile</h3>
+          <p class="muted">Add skills, interests, and academic background so matches reflect the work that suits you.</p>
+        </article>
+        <article class="card center">
+          <h3>Get matches</h3>
+          <p class="muted">Overlapping skills and research interests surface the opportunities that align with your goals.</p>
+        </article>
+        <article class="card center">
+          <h3>Apply with ease</h3>
+          <p class="muted">Send a cover letter, track the status, and let professors review applications from the same app.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="wrap split">
+    <div>
+      <h2>For students</h2>
+      <ul class="checklist">
+        <li>Opportunity matching based on your skills</li>
+        <li>Explore research positions from professors on this app</li>
+        <li>Track all your applications in one place</li>
+        <li>Build a research profile and save listings for later</li>
+      </ul>
+      <a class="btn btn-primary" href="{{ url_for('signup') }}">Sign up as student</a>
+    </div>
+    <div>
+      <h2>For professors</h2>
+      <ul class="checklist">
+        <li>Post research opportunities and reach students</li>
+        <li>Skill overlap helps find students with the right background</li>
+        <li>Review applications and update their status</li>
+        <li>Manage multiple positions from one dashboard</li>
+      </ul>
+      <a class="btn btn-outline" href="{{ url_for('signup', role='professor') }}">Sign up as professor</a>
+    </div>
+  </section>
+  <section class="band center">
+    <div class="wrap narrow">
+      <h2>Ready to find your research match?</h2>
+      <p class="muted">Create an account on this machine. Nothing is sent to an outside server.</p>
+      <div class="row center-row">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('signup') }}">Create free account</a>
+        <a class="btn btn-outline btn-lg" href="{{ url_for('login') }}">Sign in</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <strong>ScholarSync</strong>
+    <p class="muted">Accounts and listings stay in a local SQLite file on this computer.</p>
+  </div>
+</footer>
+{% endblock %}

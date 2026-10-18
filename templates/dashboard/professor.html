@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · ScholarSync{% endblock %}
+{% block body %}
+{% include "partials/nav.html" %}
+<main class="wrap page">
+  {% include "partials/flashes.html" %}
+  <div class="page-head">
+    <div>
+      <h1>Welcome back, {{ current_user.full_name|given_name('Professor') }}</h1>
+      <p class="muted">Manage your research opportunities and review applications.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('new_opportunity') }}">Post opportunity</a>
+  </div>
+  <div class="stats">
+    <article class="card stat"><strong>{{ open_count }}</strong><span>Open listings</span></article>
+    <article class="card stat"><strong>{{ applications|selectattr('status', 'equalto', 'pending')|list|length }}</strong><span>Pending review</span></article>
+    <article class="card stat"><strong>{{ applications|length }}</strong><span>Total applicants</span></article>
+    <article class="card stat"><strong>{{ opportunities|length }}</strong><span>Total posts</span></article>
+  </div>
+  <div class="layout">
+    <div class="stack">
+      <section class="card">
+        <div class="section-head">
+          <h2>Recent applications</h2>
+          <a href="{{ url_for('applications') }}">View all</a>
+        </div>
+        {% for application in applications[:5] %}
+          <div class="list-row static">
+            <span>
+              <strong>{{ application.student.full_name }}</strong>
+              <span class="muted">Applied to {{ application.opportunity.title }}</span>
+            </span>
+            <span class="status status-{{ application.status }}">{{ application.status }}</span>
+            <a href="{{ url_for('applications', id=application.id) }}">Review</a>
+          </div>
+        {% else %}
+          <p class="muted">No applications yet. Post an opportunity to start receiving them.</p>
+        {% endfor %}
+      </section>
+      <section class="card">
+        <div class="section-head">
+          <h2>Your opportunities</h2>
+          <a href="{{ url_for('opportunities') }}">Manage</a>
+        </div>
+        {% for opportunity in opportunities[:5] %}
+          <a class="list-row" href="{{ url_for('opportunity_detail', opportunity_id=opportunity.id) }}">
+            <span>
+              <strong>{{ opportunity.title }}</strong>
+              <span class="muted">{{ opportunity.application_count }} application{{ '' if opportunity.application_count == 1 else 's' }} · {{ opportunity.positions_available }} position{{ '' if opportunity.positions_available == 1 else 's' }}</span>
+            </span>
+            <span class="status status-{{ opportunity.status }}">{{ opportunity.status }}</span>
+          </a>
+        {% else %}
+          <p class="muted">No opportunities posted yet.</p>
+          <a class="btn btn-primary" href="{{ url_for('new_opportunity') }}">Post your first opportunity</a>
+        {% endfor %}
+      </section>
+    </div>
+    <aside class="stack">
+      <section class="card">
+        <h2>Quick actions</h2>
+        <a class="btn btn-primary wide" href="{{ url_for('new_opportunity') }}">Post new opportunity</a>
+        <a class="btn btn-outline wide" href="{{ url_for('applications') }}">Review applications</a>
+        <a class="btn btn-outline wide" href="{{ url_for('profile_view') }}">Update profile</a>
+      </section>
+      <section class="card">
+        <h2>Application overview</h2>
+        <p class="list-row static"><span>Pending</span><strong>{{ applications|selectattr('status', 'equalto', 'pending')|list|length }}</strong></p>
+        <p class="list-row static"><span>Reviewed</span><strong>{{ applications|selectattr('status', 'equalto', 'reviewed')|list|length }}</strong></p>
+        <p class="list-row static"><span>Accepted</span><strong>{{ applications|selectattr('status', 'equalto', 'accepted')|list|length }}</strong></p>
+        <p class="list-row static"><span>Rejected</span><strong>{{ applications|selectattr('status', 'equalto', 'rejected')|list|length }}</strong></p>
+      </section>
+      {% if current_user.research_areas %}
+        <section class="card">
+          <h2>Your research areas</h2>
+          <div class="pills">{% for area in current_user.research_areas %}<span class="pill">{{ area }}</span>{% endfor %}</div>
+        </section>
+      {% endif %}
+    </aside>
+  </div>
+</main>
+{% endblock %}
